@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title>now gg mobile cloud — Game GG</title>
+    <meta name="description" content="A comprehensive gaming portal aimed at showcasing a vast collection of games from around the world. The platform is intended to serve as a one-stop destination ">
+    <meta name="keywords" content="now gg mobile cloud, now gg fortnite, now gg minecraft, Game GG">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Zappy Analytics -->
+<script>
+(function() {
+  'use strict';
+  
+  // Configuration
+  var config = {
+    websiteId: '669d5da3-622a-43c5-9f1b-cf40f4b6b010',
+    apiUrl: 'https://api.zappy5.com/api/analytics/track',
+    sessionDuration: 30 * 60 * 1000, // 30 minutes
+    visitorDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+    trackPageViews: true,
+    trackClicks: true,
+    trackFormSubmissions: true
+  };
+  
+  // Generate or retrieve persistent visitor ID (30 days)
+  function getVisitorId() {
+    var visitorKey = 'zappy_visitor_' + config.websiteId;
+    var visitor = null;
+    
+    try {
+      visitor = localStorage.getItem(visitorKey);
+      if (visitor) {
+        var visitorData = JSON.parse(visitor);
+        var now = Date.now();
+        
+        // Check if visitor ID is still valid (30 days)
+        if (now - visitorData.created < config.visitorDuration) {
+          // Update last seen timestamp
+          visitorData.lastSeen = now;
+          localStorage.setItem(visitorKey, JSON.stringify(visitorData));
+          return visitorData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: LocalStorage not available');
+    }
+    
+    // Generate new visitor ID
+    var newVisitorId = 'zv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      localStorage.setItem(visitorKey, JSON.stringify({
+        id: newVisitorId,
+        created: Date.now(),
+        lastSeen: Date.now()
+      }));
+    } catch (e) {
+      // Continue without local storage
+    }
+    
+    return newVisitorId;
+  }
+  
+  // Generate or retrieve session ID (30 minutes)
+  function getSessionId() {
+    var sessionKey = 'zappy_session_' + config.websiteId;
+    var session = null;
+    
+    try {
+      session = sessionStorage.getItem(sessionKey);
+      if (session) {
+        var sessionData = JSON.parse(session);
+        var now = Date.now();
+        
+        // Check if session is still valid
+        if (now - sessionData.timestamp < config.sessionDuration) {
+          // Update timestamp
+          sessionData.timestamp = now;
+          sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          return sessionData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: SessionStorage not available');
+    }
+    
+    // Generate new session ID
+    var newSessionId = 'zs_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        id: newSessionId,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // Continue without session storage
+    }
+    
+    return newSessionId;
+  }
+  
+  var visitorId = getVisitorId();
+  var sessionId = getSessionId();
+  
+  // Track an event
+  function trackEvent(eventType, data) {
+    data = data || {};
+    
+    var eventData = {
+      website_id: config.websiteId,
+      event_type: eventType,
+      page_path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      visitor_id: visitorId,
+      session_id: sessionId,
+      metadata: data
+    };
+    
+    // Use sendBeacon if available (better for page unload events)
+    if (navigator.sendBeacon) {
+      var blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+      navigator.sendBeacon(config.apiUrl, blob);
+    } else {
+      // Fallback to fetch
+      fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData),
+        keepalive: true
+      }).catch(function(error) {
+        console.warn('Zappy Analytics: Failed to track event', error);
+      });
+    }
+  }
+  
+  // Track page view
+  if (config.trackPageViews) {
+    trackEvent('pageview', {
+      title: document.title,
+      url: window.location.href
+    });
+  }
+  
+  // Track clicks on important elements
+  if (config.trackClicks) {
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      
+      // Track button clicks (counted as actions)
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        var button = target.tagName === 'BUTTON' ? target : target.closest('button');
+        trackEvent('click', {
+          element: 'button',
+          text: button.textContent.trim().substring(0, 100),
+          id: button.id || null,
+          class: button.className || null
+        });
+      }
+      
+      // Track link clicks (navigation - not counted as actions)
+      else if (target.tagName === 'A' || target.closest('a')) {
+        var link = target.tagName === 'A' ? target : target.closest('a');
+        trackEvent('navigation', {
+          element: 'link',
+          text: link.textContent.trim().substring(0, 100),
+          href: link.href,
+          external: link.hostname !== window.location.hostname
+        });
+      }
+    }, true);
+  }
+  
+  // Track form submissions
+  if (config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      
+      trackEvent('form_submit', {
+        form_id: form.id || null,
+        form_name: form.name || null,
+        form_action: form.action || null,
+        form_method: form.method || 'GET'
+      });
+    }, true);
+  }
+  
+  // Track time on page (send on page unload)
+  var pageLoadTime = Date.now();
+  
+  window.addEventListener('beforeunload', function() {
+    var timeOnPage = Math.floor((Date.now() - pageLoadTime) / 1000); // in seconds
+    
+    trackEvent('page_unload', {
+      time_on_page: timeOnPage,
+      page_path: window.location.pathname
+    });
+  });
+  
+  // Expose tracking function globally for custom events
+  window.zappyAnalytics = {
+    track: trackEvent,
+    getVisitorId: function() { return visitorId; },
+    getSessionId: function() { return sessionId; }
+  };
+  
+})();
+</script>
+<!-- End Zappy Analytics -->
+    <meta property="og:title" content="now gg mobile cloud — Game GG">
+  <meta property="og:description" content="A comprehensive gaming portal aimed at showcasing a vast collection of games from around the world. The platform is intended to serve as a one-stop destination ">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="now gg mobile cloud — Game GG">
+  <meta name="twitter:description" content="A comprehensive gaming portal aimed at showcasing a vast collection of games from around the world. The platform is intended to serve as a one-stop destination ">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.umd.js"></script>
+    <!-- Mickidum Accessibility Toolbar -->
+    <script src="https://cdn.jsdelivr.net/gh/mickidum/acc_toolbar/acctoolbar/acctoolbar.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+
+    <style id="zappy-dropdown-submenu-styles">
+      /* ========== DESKTOP DROPDOWN SUBMENU STYLES ========== */
+      /* Base styles for dropdown submenus - parent must be positioned */
+      .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { position: relative; }
+      /* Submenu base - hidden by default */
+      .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { display: block !important; position: absolute !important; top: 100%; left: 0; min-width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); padding: 8px 0; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 1000; list-style: none; pointer-events: none; }
+      /* CRITICAL: Desktop hover styles to show dropdown */
+      .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Submenu item styling */
+      .sub-menu li { list-style: none; margin: 0; padding: 0; }
+      .sub-menu a { display: block !important; padding: 10px 16px !important; color: var(--text-dark, #333) !important; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 0.2s; }
+      .sub-menu a:hover { background-color: #f5f5f5; }
+      /* RTL (Hebrew/Arabic) dropdown positioning */
+      [dir="rtl"] .nav-menu .sub-menu, [dir="rtl"] nav .sub-menu, [dir="rtl"] .navbar .sub-menu, html[lang="he"] .nav-menu .sub-menu, html[lang="he"] nav .sub-menu, html[lang="he"] .navbar .sub-menu, html[lang="ar"] .nav-menu .sub-menu, html[lang="ar"] nav .sub-menu, html[lang="ar"] .navbar .sub-menu { left: auto !important; right: 0 !important; }
+      /* Hide empty dropdown menus */
+      .sub-menu:empty, .sub-menu:not(:has(li:not(.zappy-hidden-menu-item))), .sub-menu:not(:has(li)) { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+      /* Desktop: show submenu on Menu Group hover */
+      li:has(.menu-group-title):hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Menu Group title styling */
+      .nav-menu > li > .menu-group-title, #navMenu > li > .menu-group-title { display: inline-block; padding: 0.5rem 1rem; cursor: default; user-select: none; }
+      
+      /* ========== MOBILE SUBMENU STYLES ========== */
+      @media (max-width: 768px) {
+        .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { position: static !important; transform: none !important; box-shadow: none !important; background: transparent !important; max-height: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; padding: 0 !important; border-radius: 0 !important; }
+        .sub-menu.mobile-expanded { max-height: 500px !important; opacity: 1 !important; visibility: visible !important; padding: 8px 0 8px 16px !important; }
+        [dir="rtl"] .sub-menu.mobile-expanded, html[lang="he"] .sub-menu.mobile-expanded { padding: 8px 16px 8px 0 !important; }
+        /* Disable hover behavior on mobile */
+        .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 0; visibility: hidden; pointer-events: none; }
+        .nav-menu li > .sub-menu.mobile-expanded, nav li > .sub-menu.mobile-expanded, .navbar li > .sub-menu.mobile-expanded, #navMenu li > .sub-menu.mobile-expanded { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { display: flex !important; flex-wrap: wrap !important; align-items: center !important; position: relative !important; min-height: 44px !important; }
+        .nav-menu li:has(.sub-menu) > a, nav li:has(.sub-menu) > a, .navbar li:has(.sub-menu) > a, #navMenu li:has(.sub-menu) > a { flex: 1 !important; min-width: 0 !important; }
+        .nav-menu li:has(.sub-menu) > .menu-group-title, nav li:has(.sub-menu) > .menu-group-title, .navbar li:has(.sub-menu) > .menu-group-title, #navMenu li:has(.sub-menu) > .menu-group-title { flex: 1 !important; min-width: 0 !important; padding: 0 !important; line-height: inherit !important; }
+        .nav-menu li:has(.sub-menu) > .sub-menu, nav li:has(.sub-menu) > .sub-menu, .navbar li:has(.sub-menu) > .sub-menu, #navMenu li:has(.sub-menu) > .sub-menu { flex-basis: 100% !important; width: 100% !important; }
+        .nav-menu li:has(.sub-menu) > a [class*="chevron"], .nav-menu li:has(.sub-menu) > a [class*="arrow"], .nav-menu li:has(.sub-menu) > a .fa-chevron-down, .nav-menu li:has(.sub-menu) > a .fa-angle-down, nav li:has(.sub-menu) > a [class*="chevron"], nav li:has(.sub-menu) > a [class*="arrow"], #navMenu li:has(.sub-menu) > a [class*="chevron"], #navMenu li:has(.sub-menu) > a [class*="arrow"] { display: none !important; visibility: hidden !important; }
+        .mobile-submenu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; width: 44px !important; height: auto !important; background: transparent !important; border: none !important; cursor: pointer !important; color: var(--text-dark) !important; position: static !important; flex-shrink: 0 !important; align-self: stretch !important; z-index: 2 !important; padding: 0 !important; margin: 0 !important; }
+        .mobile-submenu-toggle::after { content: '' !important; width: 0 !important; height: 0 !important; border-left: 6px solid transparent !important; border-right: 6px solid transparent !important; border-top: 7px solid currentColor !important; transition: transform 0.3s ease !important; }
+        .mobile-submenu-toggle.expanded::after { transform: rotate(180deg) !important; }
+        .sub-menu a { padding: 10px 0 !important; display: block !important; color: var(--text-dark) !important; }
+        .navbar .sub-menu li a, nav.navbar .sub-menu li a, .zappy-products-dropdown .sub-menu a { color: var(--text-dark) !important; }
+      }
+      @media (min-width: 769px) { .mobile-submenu-toggle { display: none !important; } }
+    </style>
+
+    <style id="mobile-lang-menu-deployed-css">
+    @media (max-width: 768px) {
+      .lang-switcher,
+      .nav-cta-container .lang-switcher,
+      .nav-container .lang-switcher,
+      .navbar .lang-switcher,
+      .navbar .nav-cta-container .lang-switcher,
+      .nav-icons-left .lang-switcher,
+      .nav-ecommerce-icons .lang-switcher { display: none !important; }
+      .mobile-lang-menu { width: 100%; border-top: 1px solid rgba(128,128,128,0.2); padding: 8px 0 0 0; margin-top: 8px; }
+      .mobile-lang-toggle { display: flex !important; align-items: center; justify-content: space-between; width: 100%; padding: 12px 16px; background: none; border: none; cursor: pointer; font-size: 15px; color: inherit; font-family: inherit; }
+      .mobile-lang-toggle::after { content: ''; display: inline-block; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform 0.3s ease; margin-left: 8px; }
+      .mobile-lang-toggle.expanded::after { transform: rotate(-135deg); }
+      .mobile-lang-options { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+      .mobile-lang-options.expanded { max-height: 300px; }
+      .mobile-lang-option { display: flex !important; align-items: center; gap: 10px; padding: 10px 24px; text-decoration: none; color: inherit; font-size: 14px; font-family: inherit; }
+      .mobile-lang-option:hover { background: rgba(128,128,128,0.1); }
+      .mobile-lang-option.active { font-weight: 600; opacity: 0.7; pointer-events: none; }
+      .mobile-lang-option img { width: 20px; height: 20px; border-radius: 50%; }
+    }
+    @media (min-width: 769px) {
+      .mobile-lang-menu { display: none !important; }
+    }
+    </style>
+
+    <style id="zappy-widget-visibility">
+      #mic-access-tool-general-button, .mic-access-tool-general-button,
+      #mic-init-access-tool .mic-access-tool-general-button, #mic-init-access-tool #mic-access-tool-general-button,
+      ._access-icon, #mic-access-tool-box, .mic-access-tool-box,
+      #mic-init-access-tool #mic-access-tool-box, div[id*="mic-access-tool-box"], ._access-menu {
+        display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+      }
+    </style>
+</head>
+<body>
+
+  <nav class="navbar" dir="rtl">
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+    <svg class="hamburger-icon" width="24" height="24" viewbox="0 0 24 24" fill="none">
+      <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+    <svg class="close-icon" width="24" height="24" viewbox="0 0 24 24" fill="none" style="display: none;">
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+  </button>
+
+  <button class="phone-header-btn" data-phone="[business_phone]" aria-label="Call">
+    <svg width="20" height="20" viewbox="0 0 24 24" fill="currentColor">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  </button>
+
+  <div class="nav-container">
+    <div class="nav-right-group"><div class="nav-brand">
+      <a href="/" class="logo-link">
+        <img src="/assets/game-gg-logo.webp" alt="Game GG" class="logo">
+      </a>
+    </div><ul class="nav-menu" id="navMenu"><li><a href="#features">תכונות</a></li><li><a href="#showcase">גלריה</a></li><li><a href="#benefits">יתרונות</a></li><li><a href="#testimonials">המלצות</a></li><li><a href="#stats">נתונים</a></li></ul></div>
+
+    
+
+    <div class="nav-cta-container">
+      <a href="#cta" class="nav-cta-btn">צור קשר</a>
+    </div>
+  </div>
+</nav>
+<script>
+
+// Navbar Mobile Menu Toggle and Contrast Fix
+(function() {
+  // Use 'load' event instead of 'DOMContentLoaded' to ensure we run AFTER all other scripts
+  window.addEventListener('load', function() {
+    
+    // FIX MOBILE BUTTON CONTRAST
+    // Detect navbar background color and apply contrasting color to mobile buttons
+    const navbar = document.querySelector('.navbar, nav, header');
+    if (!navbar) {
+      console.log('[Navbar] Navbar element not found');
+      return;
+    }
+    
+    // DECLARE VARIABLES EARLY to avoid Temporal Dead Zone errors
+    // These are used in multiple places below
+    let mobileToggle = document.getElementById('mobileToggle') ||
+                       document.querySelector('.mobile-toggle') ||
+                       document.querySelector('.hamburger') ||
+                       document.querySelector('.hamburger-menu') ||
+                       document.querySelector('.menu-toggle') ||
+                       document.querySelector('.burger-menu') ||
+                       document.querySelector('[aria-label="Menu"]') ||
+                       document.querySelector('[aria-label="תפריט"]');
+    
+    const phoneBtn = document.querySelector('.phone-header-btn');
+    
+    const computedStyle = window.getComputedStyle(navbar);
+    let bgColor = computedStyle.backgroundColor;
+    
+    console.log('[Navbar] Initial navbar background:', bgColor);
+    
+    // Check if background is transparent or rgba with 0 alpha
+    const isTransparent = bgColor === 'transparent' || 
+                         bgColor === 'rgba(0, 0, 0, 0)' ||
+                         (bgColor.startsWith('rgba') && bgColor.includes(', 0)'));
+    
+    if (isTransparent) {
+      // Check for background-image or gradient
+      const bgImage = computedStyle.backgroundImage;
+      if (bgImage && bgImage !== 'none') {
+        console.log('[Navbar] Navbar has background image/gradient, using dark text');
+        bgColor = 'rgb(240, 240, 240)'; // Assume light background
+      } else {
+        // Transparent navbar - check body background
+        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        console.log('[Navbar] Navbar transparent, using body background:', bodyBg);
+        bgColor = bodyBg;
+      }
+    }
+    
+    // Calculate luminance to determine if background is light or dark
+    const rgb = bgColor.match(/\d+/g);
+    if (rgb && rgb.length >= 3) {
+      const r = parseInt(rgb[0]);
+      const g = parseInt(rgb[1]);
+      const b = parseInt(rgb[2]);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      
+      // Mobile button colors are set by Claude's AI-generated CSS (same as .nav-menu a)
+      // No dynamic color overrides needed - colors come from the generated navbar CSS
+      console.log('[Navbar] Mobile button colors preserved from Claude CSS (luminance:', luminance.toFixed(2) + ')');
+      
+      // FIX ICON SIZES - Ensure SVGs are properly sized and visible
+      // INJECT CRITICAL CSS TO OVERRIDE ANY CONFLICTING RULES
+      const criticalCSS = document.createElement('style');
+      criticalCSS.id = 'zappy-mobile-nav-fix';
+      const htmlLang = document.documentElement.lang || 'en';
+      const htmlDir = document.documentElement.dir || 'ltr';
+      // Check both dir attribute AND lang for RTL detection
+      // dir="rtl" is the most reliable indicator
+      const isRTL = htmlDir === 'rtl' || htmlLang === 'he' || htmlLang === 'ar';
+      
+      criticalCSS.textContent = `
+        /* Hide mobile buttons on desktop, show only on mobile */
+        @media (min-width: 769px) {
+          .mobile-toggle,
+          .phone-header-btn {
+            display: none !important;
+          }
+        }
+        
+        /* Show and position mobile buttons correctly on mobile */
+        @media (max-width: 768px) {
+          .mobile-toggle,
+          .phone-header-btn {
+            position: absolute !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            z-index: 1001 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            border: none !important;
+            cursor: pointer !important;
+            padding: 6px !important;
+            background: none !important;
+            color: var(--nav-text, var(--text-dark)) !important;
+          }
+          
+          /* LTR positioning (default): hamburger LEFT, phone RIGHT */
+          html:not([dir="rtl"]):not([lang="he"]):not([lang="ar"]) .mobile-toggle,
+          html[dir="ltr"] .mobile-toggle {
+            left: 12px !important;
+            right: auto !important;
+          }
+          html:not([dir="rtl"]):not([lang="he"]):not([lang="ar"]) .phone-header-btn,
+          html[dir="ltr"] .phone-header-btn {
+            right: 12px !important;
+            left: auto !important;
+          }
+          
+          /* RTL positioning: hamburger RIGHT, phone LEFT */
+          html[dir="rtl"] .mobile-toggle,
+          html[lang="he"] .mobile-toggle,
+          html[lang="ar"] .mobile-toggle {
+            right: 12px !important;
+            left: auto !important;
+          }
+          html[dir="rtl"] .phone-header-btn,
+          html[lang="he"] .phone-header-btn,
+          html[lang="ar"] .phone-header-btn {
+            left: 12px !important;
+            right: auto !important;
+          }
+          
+          /* CRITICAL: Ensure nav-container has min-height on mobile */
+          /* All children are positioned absolutely/fixed on mobile, so height:auto collapses to 0 */
+          .nav-container {
+            min-height: 70px !important;
+            position: relative !important;
+          }
+          
+          /* Ensure SVG icons are properly sized and inherit color */
+          .mobile-toggle svg,
+          .phone-header-btn svg {
+            width: 24px !important;
+            height: 24px !important;
+            /* Don't force display - let JavaScript control hamburger/close toggle */
+          }
+          
+          /* Reset nav-cta-container on mobile - remove desktop box-shadow/padding */
+          /* that creates a visible ghost box when CTA button is hidden */
+          .nav-cta-container {
+            box-shadow: none !important;
+            padding: 0 !important;
+          }
+          
+          /* Hide nav-cta-container entirely on mobile when there's no lang-switcher */
+          /* (only the CTA button is inside, and it's hidden on mobile) */
+          .nav-cta-container:not(:has(.lang-switcher)) {
+            display: none !important;
+          }
+          
+          /* CRITICAL: Prevent hero image fade gradient from bleeding over headline text */
+          /* The .image-fade-gradient has bottom: -30px (extends below parent) */
+          /* On mobile stacked layout, this overlaps the h1 text below the image */
+          .hero-image-column {
+            overflow: hidden !important;
+          }
+          .image-fade-gradient {
+            bottom: 0 !important;
+          }
+          
+          /* Hide desktop language switcher on mobile - hamburger menu handles it */
+          /* High specificity to override stored CSS */
+          .lang-switcher,
+          .nav-cta-container .lang-switcher,
+          .nav-container .lang-switcher,
+          .navbar .lang-switcher,
+          .navbar .nav-cta-container .lang-switcher {
+            display: none !important;
+          }
+        }
+      `;
+      
+      // Remove existing fix if present and inject new one
+      const existing = document.getElementById('zappy-mobile-nav-fix');
+      if (existing) existing.remove();
+      document.head.appendChild(criticalCSS);
+      
+      console.log('[Navbar] Critical CSS injected for mobile nav positioning');
+      
+      // ONLY apply inline positioning styles on mobile viewport
+      // On desktop, the CSS handles hiding these buttons with display: none
+      // Inline styles were breaking desktop layout by overriding CSS
+      const isMobileViewport = window.innerWidth <= 768;
+      
+      if (mobileToggle) {
+        // Icon sizing applies to all viewports for consistency
+        const hamburgerIcon = mobileToggle.querySelector('.hamburger-icon');
+        const closeIcon = mobileToggle.querySelector('.close-icon');
+        
+        if (hamburgerIcon) {
+          hamburgerIcon.style.setProperty('width', '24px', 'important');
+          hamburgerIcon.style.setProperty('height', '24px', 'important');
+          hamburgerIcon.style.setProperty('display', 'block', 'important'); // Show hamburger by default
+        }
+        if (closeIcon) {
+          closeIcon.style.setProperty('width', '24px', 'important');
+          closeIcon.style.setProperty('height', '24px', 'important');
+          closeIcon.style.setProperty('display', 'none', 'important'); // Hide close icon by default
+        }
+        
+        // ONLY set positioning inline styles on mobile
+        if (isMobileViewport) {
+          mobileToggle.style.setProperty('position', 'absolute', 'important');
+          mobileToggle.style.setProperty('top', '50%', 'important');
+          mobileToggle.style.setProperty('transform', 'translateY(-50%)', 'important');
+          mobileToggle.style.setProperty('z-index', '1001', 'important');
+          
+          // Clear any inline left/right so CSS can take over based on html[dir]
+          mobileToggle.style.removeProperty('left');
+          mobileToggle.style.removeProperty('right');
+          
+          console.log('[Navbar] Mobile toggle positioning applied (mobile viewport)');
+        } else {
+          // On desktop, clear any positioning styles to let CSS handle it
+          mobileToggle.style.removeProperty('position');
+          mobileToggle.style.removeProperty('top');
+          mobileToggle.style.removeProperty('transform');
+          mobileToggle.style.removeProperty('z-index');
+          mobileToggle.style.removeProperty('left');
+          mobileToggle.style.removeProperty('right');
+          console.log('[Navbar] Desktop viewport - cleared mobile toggle inline positioning');
+        }
+      }
+      
+      if (phoneBtn) {
+        // Icon sizing applies to all viewports
+        const phoneIcon = phoneBtn.querySelector('svg');
+        if (phoneIcon) {
+          phoneIcon.style.width = '24px';
+          phoneIcon.style.height = '24px';
+          phoneIcon.setAttribute('width', '24');
+          phoneIcon.setAttribute('height', '24');
+        }
+        
+        // ONLY set positioning inline styles on mobile
+        if (isMobileViewport) {
+          phoneBtn.style.setProperty('position', 'absolute', 'important');
+          phoneBtn.style.setProperty('top', '50%', 'important');
+          phoneBtn.style.setProperty('transform', 'translateY(-50%)', 'important');
+          phoneBtn.style.setProperty('z-index', '1001', 'important');
+          
+          // Clear any inline left/right so CSS can take over based on html[dir]
+          phoneBtn.style.removeProperty('left');
+          phoneBtn.style.removeProperty('right');
+          
+          console.log('[Navbar] Phone button positioning applied (mobile viewport)');
+        } else {
+          // On desktop, clear any positioning styles to let CSS handle it
+          phoneBtn.style.removeProperty('position');
+          phoneBtn.style.removeProperty('top');
+          phoneBtn.style.removeProperty('transform');
+          phoneBtn.style.removeProperty('z-index');
+          phoneBtn.style.removeProperty('left');
+          phoneBtn.style.removeProperty('right');
+          console.log('[Navbar] Desktop viewport - cleared phone button inline positioning');
+        }
+      }
+    } else {
+      console.log('[Navbar] Could not parse background color:', bgColor);
+    }
+    
+    // MOBILE MENU TOGGLE
+    // Re-query in case DOM changed (mobileToggle already declared at top of function)
+    mobileToggle = document.getElementById('mobileToggle') ||
+                   document.querySelector('.mobile-toggle') ||
+                   document.querySelector('.hamburger') ||
+                   document.querySelector('.hamburger-menu') ||
+                   document.querySelector('.menu-toggle') ||
+                   document.querySelector('.burger-menu') ||
+                   document.querySelector('[aria-label="Menu"]') ||
+                   document.querySelector('[aria-label="תפריט"]');
+    
+    // EXPANDED SEARCH: Find nav menu by ID or class
+    const navMenu = document.getElementById('navMenu') ||
+                  document.querySelector('.nav-menu') ||
+                  document.querySelector('.nav-links') ||
+                  document.querySelector('nav ul:not(.submenu)');
+    
+    if (!mobileToggle || !navMenu) {
+      console.log('[Navbar] Mobile toggle or menu not found:', { toggle: !!mobileToggle, menu: !!navMenu });
+      return;
+    }
+    
+    // Ensure navMenu has ID for CSS targeting
+    if (!navMenu.id) {
+      navMenu.id = 'navMenu';
+    }
+    
+    console.log('[Navbar] Initializing mobile menu...');
+    
+    // Remove any existing event listeners by cloning the button
+    const newToggle = mobileToggle.cloneNode(true);
+    mobileToggle.parentNode.replaceChild(newToggle, mobileToggle);
+    
+    // Toggle menu on button click - use newToggle now
+    newToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const hamburgerIcon = this.querySelector('.hamburger-icon');
+      const closeIcon = this.querySelector('.close-icon');
+      const isActive = navMenu.classList.contains('active');
+      
+      if (isActive) {
+        // Close menu
+        navMenu.classList.remove('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'block', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+        console.log('[Navbar] Menu closed');
+      } else {
+        // Open menu
+        navMenu.classList.add('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'none', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'block', 'important');
+        document.body.style.overflow = 'hidden';
+        console.log('[Navbar] Menu opened');
+      }
+    });
+    
+    // Close menu when clicking nav links (but NOT dropdown toggles)
+    const navLinks = navMenu.querySelectorAll('a');
+    navLinks.forEach(function(link) {
+      link.addEventListener('click', function() {
+        // Don't close if it's a dropdown child (unless it's a real navigation link)
+        if (this.getAttribute('href') === '#') return;
+        
+        const hamburgerIcon = newToggle.querySelector('.hamburger-icon');
+        const closeIcon = newToggle.querySelector('.close-icon');
+        
+        navMenu.classList.remove('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'block', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+        console.log('[Navbar] Menu closed (link clicked)');
+      });
+    });
+    
+    // DROPDOWN MENU TOGGLE (for mobile and touch devices)
+    var dropdownToggles = navMenu.querySelectorAll('.dropdown-toggle');
+    dropdownToggles.forEach(function(toggle) {
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var parent = this.closest('.nav-dropdown');
+        if (!parent) return;
+        
+        // Close other open dropdowns at the same level
+        var siblings = parent.parentNode.querySelectorAll('.nav-dropdown.open');
+        siblings.forEach(function(sib) {
+          if (sib !== parent) sib.classList.remove('open');
+        });
+        
+        parent.classList.toggle('open');
+        console.log('[Navbar] Dropdown toggled:', parent.classList.contains('open') ? 'open' : 'closed');
+      });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.nav-dropdown')) {
+        var openDropdowns = document.querySelectorAll('.nav-dropdown.open');
+        openDropdowns.forEach(function(dd) { dd.classList.remove('open'); });
+      }
+    });
+    
+    console.log('[Navbar] Dropdown handlers initialized for ' + dropdownToggles.length + ' dropdowns');
+    
+    // Phone button functionality (phoneBtn already declared at top of function)
+    if (phoneBtn) {
+      phoneBtn.addEventListener('click', function() {
+        // Get phone number from placeholder in page or use default
+        const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+        const phoneNumber = phoneLinks.length > 0 
+          ? phoneLinks[0].getAttribute('href').replace('tel:', '')
+          : '[business_phone]';
+        
+        window.location.href = 'tel:' + phoneNumber;
+        console.log('[Navbar] Phone button clicked');
+      });
+    }
+    
+    console.log('[Navbar] Mobile menu initialized successfully');
+    
+    // === WHATSAPP BUTTON VISIBILITY FIX ===
+    // Ensure WhatsApp floating button is hidden on desktop and visible on mobile
+    // IMPORTANT: Only target the floating button by its class, NOT generic wa.me links
+    const handleWhatsAppVisibility = function() {
+      const whatsappBtn = document.querySelector('.whatsapp-float');
+      if (whatsappBtn) {
+        const isDesktop = window.innerWidth >= 769;
+        if (isDesktop) {
+          whatsappBtn.style.setProperty('display', 'none', 'important');
+          whatsappBtn.style.setProperty('visibility', 'hidden', 'important');
+          whatsappBtn.style.setProperty('opacity', '0', 'important');
+          whatsappBtn.style.setProperty('pointer-events', 'none', 'important');
+          console.log('[WhatsApp] Button hidden on desktop');
+        } else {
+          whatsappBtn.style.removeProperty('display');
+          whatsappBtn.style.removeProperty('visibility');
+          whatsappBtn.style.removeProperty('opacity');
+          whatsappBtn.style.removeProperty('pointer-events');
+          console.log('[WhatsApp] Button visible on mobile');
+        }
+      }
+    };
+    
+    // Run on load
+    handleWhatsAppVisibility();
+    
+    // Run on resize with debouncing
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(handleWhatsAppVisibility, 100);
+    });
+  });
+})();
+
+</script>
+  
+  <main>
+    <section id="hero" class="index-hero-section" data-layout-spec="בית-hero" dir="rtl" data-hero-type="fullscreen-scrim">
+  <!-- Background Image -->
+  <div class="index-hero-bg">
+    <img data-hero-bg="true" data-placeholder="index-hero-image-1" data-context="Cinematic ultra-wide gaming environment: multiple large curved monitors displaying vivid game art from different genres (action, RPG, racing, horror), royal blue and warm orange neon light accents illuminating a premium gaming setup, atmospheric dark room with layered game posters on walls, high-end gaming chairs, dramatic depth of field, photorealistic, moody and immersive atmosphere" width="1440" height="900" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1440' height='900'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%A1%D7%91%D7%99%D7%91%D7%AA%20%D7%92%D7%99%D7%99%D7%9E%D7%99%D7%A0%D7%92%20%D7%A4%D7%A8%D7%99%D7%9E%D7%99%D7%95%D7%9D%20%D7%A2%D7%9D%20%D7%9E%D7%A1%D7%9B%D7%99%D7%9D%20%D7%9E%D7%A8%D7%95%D7%91%D7%99%D7%9D%20%D7%95%D7%90%D7%95%D7%A8%20%D7%A0%D7%99%D7%90%D7%95%D7%9F%20%D7%9B%D7%97%D7%95%D7%9C%20%D7%95%D7%9B%D7%AA%D7%95%D7%9D%3C/text%3E%3C/svg%3E" alt="סביבת גיימינג פרימיום עם מסכים מרובים ואור ניאון כחול וכתום">
+  </div>
+
+  <!-- Scrim Overlay -->
+  <div class="index-hero-scrim" aria-hidden="true"></div>
+
+  <!-- Content Overlay Card -->
+  <div class="index-hero-container">
+    <div class="index-hero-card">
+      <div class="index-hero-badge">
+        <i class="fa-solid fa-gamepad"></i>
+        <span>הפורטל הגיימינג הגדול בישראל</span>
+      </div>
+
+      <h1 class="index-hero-h1">כל המשחקים בעולם,<br>במקום אחד.</h1>
+
+      <p class="index-hero-body">Game GG מאגד להיטי ענק, יהלומים אינדי נסתרים, קלאסיקות רטרו וכל ז'אנר שתדמיין — ספרייה מלוטשת שנועדה לגילוי.</p>
+
+      <h3 class="index-hero-genres">
+        <i class="fa-solid fa-star"></i>
+        אקשן, RPG, ספורט, אסטרטגיה, מירוצים, אימה, אינדי, רטרו ועוד
+      </h3>
+
+      <div class="index-hero-cta-row">
+        <a href="#games" class="index-hero-btn-primary">
+          <i class="fa-solid fa-compass"></i>
+          גלה את Game GG
+        </a>
+        <a href="#contact" class="index-hero-btn-secondary">
+          <i class="fa-solid fa-message"></i>
+          דבר עם הצוות
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Divider -->
+  <div class="index-hero-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1440 90" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,90 L0,55 Q120,38 240,50 T480,42 Q600,36 720,48 T960,40 Q1080,34 1200,46 T1440,50 L1440,90 Z" fill="#FFFFFF"></path>
+    </svg>
+  </div>
+</section>
+
+<section id="features" class="index-features-section" data-layout-spec="בית-features" dir="rtl">
+  <div class="index-features-container">
+    <div class="index-features-intro">
+      <h2 class="index-features-heading">פורטל הגיימינג שנבנה לגילוי</h2>
+      <p class="index-features-subtext">במקום שהעולם של המשחקים ירגיש אינסופי ומבולגן, כאן הכל מסודר במדפים ברורים שעוזרים לכל סוג של גיימר למצוא משהו שווה לפתוח — מ-Game GG ועד לפינות הנסתרות ביותר של עולם הגיימינג.</p>
+    </div>
+    <div class="index-features-grid">
+      <article class="index-feature-card">
+        <div class="index-feature-icon-wrap">
+          <svg data-element-type="icon" data-icon-type="svg" width="36" height="36" viewbox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="3" y="3" width="13" height="13" rx="3" stroke="currentColor" stroke-width="2"></rect>
+            <rect x="20" y="3" width="13" height="13" rx="3" stroke="currentColor" stroke-width="2"></rect>
+            <rect x="3" y="20" width="13" height="13" rx="3" stroke="currentColor" stroke-width="2"></rect>
+            <rect x="20" y="20" width="13" height="13" rx="3" stroke="currentColor" stroke-width="2"></rect>
+          </svg>
+        </div>
+        <div class="index-feature-content">
+          <h3>כיסוי ז'אנרים עצום</h3>
+          <p>ממשחקי AAA בלוקבאסטר ועד לקטגוריות נישה נסתרות — הפלטפורמה מכסה את כל הספקטרום. אינדי, RPG, אסטרטגיה, אקשן, הרפתקאות ועוד עשרות ז'אנרים, כולם נגישים במקום אחד.</p>
+        </div>
+      </article>
+      <article class="index-feature-card">
+        <div class="index-feature-icon-wrap">
+          <svg data-element-type="icon" data-icon-type="svg" width="36" height="36" viewbox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="3" y="6" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2"></rect>
+            <path d="M8 12h8M8 17h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            <rect x="20" y="10" width="8" height="8" rx="2" fill="currentColor" opacity="0.18"></rect>
+            <rect x="20" y="10" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.5"></rect>
+          </svg>
+        </div>
+        <div class="index-feature-content">
+          <h3>גלישה ויזואלית נקייה</h3>
+          <p>כרטיסי כיסוי מסודרים, מטאדאטה קריאה ועיצוב קטלוגי שמאפשר לסרוק מאות משחקים בלי עייפות. כל פרט — ז'אנר, פלטפורמה, שנת יציאה — מוצג בדיוק במקום הנכון.</p>
+        </div>
+      </article>
+      <article class="index-feature-card">
+        <div class="index-feature-icon-wrap">
+          <svg data-element-type="icon" data-icon-type="svg" width="36" height="36" viewbox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="18" cy="18" r="14" stroke="currentColor" stroke-width="2"></circle>
+            <ellipse cx="18" cy="18" rx="6" ry="14" stroke="currentColor" stroke-width="1.5"></ellipse>
+            <path d="M4 18h28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+            <path d="M6 11h24M6 25h24" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.5"></path>
+          </svg>
+        </div>
+        <div class="index-feature-content">
+          <h3>תרבות גיימינג עולמית</h3>
+          <p>כותרים וסגנונות מכל פינה בעולם — יפן, קוריאה, אמריקה, אירופה ומעבר לה. now gg mobile cloud מאפשר גישה למשחקים גלובליים ללא גבולות גיאוגרפיים, עם תוכן מקורי מכל תרבות.</p>
+        </div>
+      </article>
+      <article class="index-feature-card">
+        <div class="index-feature-icon-wrap">
+          <svg data-element-type="icon" data-icon-type="svg" width="36" height="36" viewbox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M18 4l2.8 8.6H30l-7.4 5.4 2.8 8.6L18 21.2l-7.4 5.4 2.8-8.6L6 12.6h9.2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+            <path d="M10 28h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M13 32h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"></path>
+          </svg>
+        </div>
+        <div class="index-feature-content">
+          <h3>בחירות טריות ודירוגים</h3>
+          <p>רשימות טרנד מתעדכנות, יציאות בולטות שכדאי לעקוב אחריהן, וקלאסיקות ירוקות עד שלא נושנות. תמיד תדע מה חם עכשיו ומה שווה לחזור אליו.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+  <div class="index-features-divider-wrapper" aria-hidden="true">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 64" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,64 L0,40 L100,40 L100,32 L200,32 L200,40 L300,40 L300,24 L400,24 L400,32 L500,32 L500,40 L600,40 L600,28 L700,28 L700,36 L800,36 L800,44 L900,44 L900,32 L1000,32 L1000,40 L1100,40 L1100,48 L1200,48 L1200,64 Z" fill="#F7F8FC"></path>
+    </svg>
+  </div>
+</section>
+
+<section id="showcase" class="index-showcase-section" data-layout-spec="בית-showcase" dir="rtl">
+  <div class="showcase-container">
+
+    <!-- Section Header -->
+    <div class="showcase-header">
+      <h2 class="showcase-title">הספרייה בכף ידך</h2>
+      <p class="showcase-subtitle">מהיטים הגדולים בעולם ועד לפנינות נסתרות — Game GG הופך ספרייה ענקית למשהו שקל לגלות, לאהוב ולשחק בו.</p>
+    </div>
+
+    <!-- Main Editorial Grid -->
+    <div class="showcase-grid">
+
+      <!-- Featured Card (large, spans 2 rows) -->
+      <article class="game-card game-card--featured">
+        <figure class="game-card__figure">
+          <img data-placeholder="index-showcase-image-1" data-context="Epic cinematic game cover art showing a dramatic world map with glowing cities, legendary heroes from different cultures, and golden light rays — representing world hits and global gaming culture for Game GG gaming portal" width="600" height="800" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%94%D7%99%D7%98%D7%99%D7%9D%20%D7%A2%D7%95%D7%9C%D7%9E%D7%99%D7%99%D7%9D%20%E2%80%94%20Game%20GG%3C/text%3E%3C/svg%3E" alt="היטים עולמיים — Game GG" class="game-card__img">
+          <div class="game-card__overlay"></div>
+        </figure>
+        <div class="game-card__info">
+          <span class="game-card__badge">מומלץ</span>
+          <h3 class="game-card__title">היטים עולמיים</h3>
+          <p class="game-card__meta">המשחקים שמדברים על עצמם — הפופולריים ביותר מכל רחבי הגלובוס</p>
+        </div>
+      </article>
+
+      <!-- Supporting Cards Grid -->
+      <div class="showcase-grid__supporting">
+
+        <article class="game-card game-card--small">
+          <figure class="game-card__figure">
+            <img data-placeholder="index-showcase-image-2" data-context="Colorful indie game cover art with pixel art style, quirky characters, hand-drawn world, vibrant pastel colors — representing indie gems category for gaming portal" width="300" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%90%D7%99%D7%A0%D7%93%D7%99%20%D7%92%D7%B3%D7%9E%D7%A1%3C/text%3E%3C/svg%3E" alt="אינדי ג׳מס" class="game-card__img">
+            <div class="game-card__overlay"></div>
+          </figure>
+          <div class="game-card__info">
+            <span class="game-card__badge game-card__badge--accent">אינדי</span>
+            <h3 class="game-card__title">פנינות אינדי</h3>
+          </div>
+        </article>
+
+        <article class="game-card game-card--small">
+          <figure class="game-card__figure">
+            <img data-placeholder="index-showcase-image-3" data-context="High speed racing game cover art with sleek sports cars on a neon-lit track, motion blur effects, dramatic perspective — representing racing games category for gaming portal" width="300" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%A8%D7%99%D7%A1%D7%99%D7%A0%D7%92%20%D7%A8%D7%90%D7%A9%3C/text%3E%3C/svg%3E" alt="ריסינג ראש" class="game-card__img">
+            <div class="game-card__overlay"></div>
+          </figure>
+          <div class="game-card__info">
+            <span class="game-card__badge game-card__badge--secondary">מירוצים</span>
+            <h3 class="game-card__title">ריסינג ראש</h3>
+          </div>
+        </article>
+
+        <article class="game-card game-card--small">
+          <figure class="game-card__figure">
+            <img data-placeholder="index-showcase-image-4" data-context="Immersive narrative RPG game cover art with lush fantasy forest, mysterious ancient ruins, glowing runes, atmospheric fog — representing story-driven games for gaming portal" width="300" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%A2%D7%95%D7%9C%D7%9E%D7%95%D7%AA%20%D7%A1%D7%99%D7%A4%D7%95%D7%A8%3C/text%3E%3C/svg%3E" alt="עולמות סיפור" class="game-card__img">
+            <div class="game-card__overlay"></div>
+          </figure>
+          <div class="game-card__info">
+            <span class="game-card__badge">עלילה</span>
+            <h3 class="game-card__title">עולמות סיפור</h3>
+          </div>
+        </article>
+
+        <article class="game-card game-card--small">
+          <figure class="game-card__figure">
+            <img data-placeholder="index-showcase-image-5" data-context="Retro gaming cover art with classic 8-bit and 16-bit pixel art, vintage game cartridges, CRT monitor glow, nostalgic arcade aesthetic — representing retro games category for gaming portal" width="300" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%A8%D7%98%D7%A8%D7%95%20%D7%A8%D7%99%D7%99%D7%9C%D7%95%D7%90%D7%95%D7%93%D7%93%3C/text%3E%3C/svg%3E" alt="רטרו ריילואודד" class="game-card__img">
+            <div class="game-card__overlay"></div>
+          </figure>
+          <div class="game-card__info">
+            <span class="game-card__badge game-card__badge--accent">רטרו</span>
+            <h3 class="game-card__title">רטרו ריילואודד</h3>
+          </div>
+        </article>
+
+        <article class="game-card game-card--small">
+          <figure class="game-card__figure">
+            <img data-placeholder="index-showcase-image-6" data-context="Multiplayer online battle arena game cover art with diverse team of warriors, competitive arena stage, electric energy effects, crowd atmosphere — representing multiplayer games for gaming portal" width="300" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%9E%D7%95%D7%9C%D7%98%D7%99%D7%A4%D7%9C%D7%99%D7%99%D7%A8%20%D7%90%D7%A8%D7%A0%D7%94%3C/text%3E%3C/svg%3E" alt="מולטיפלייר ארנה" class="game-card__img">
+            <div class="game-card__overlay"></div>
+          </figure>
+          <div class="game-card__info">
+            <span class="game-card__badge game-card__badge--secondary">מולטי</span>
+            <h3 class="game-card__title">מולטיפלייר ארנה</h3>
+          </div>
+        </article>
+
+        <article class="game-card game-card--small">
+          <figure class="game-card__figure">
+            <img data-placeholder="index-showcase-image-7" data-context="Late night horror game cover art with dark haunted mansion, flickering candles, shadowy monster silhouette, eerie moonlight, spine-chilling atmosphere — representing horror games category for gaming portal" width="300" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%90%D7%99%D7%9E%D7%94%20%D7%91%D7%9C%D7%99%D7%9C%D7%94%3C/text%3E%3C/svg%3E" alt="אימה בלילה" class="game-card__img">
+            <div class="game-card__overlay"></div>
+          </figure>
+          <div class="game-card__info">
+            <span class="game-card__badge game-card__badge--dark">אימה</span>
+            <h3 class="game-card__title">אימה בלילה</h3>
+          </div>
+        </article>
+
+      </div><!-- /.showcase-grid__supporting -->
+    </div><!-- /.showcase-grid -->
+
+    <!-- Stat Banner -->
+    <div class="showcase-stat-banner">
+      <div class="stat-block">
+        <div class="stat-block__icon">
+          <svg data-element-type="icon" data-icon-type="svg" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+        </div>
+        <div class="stat-block__content">
+          <span class="stat-block__label">טרנדינג עכשיו</span>
+          <span class="stat-block__value">המשחקים הכי חמים ברגע זה</span>
+        </div>
+      </div>
+      <div class="stat-divider" aria-hidden="true"></div>
+      <div class="stat-block">
+        <div class="stat-block__icon">
+          <svg data-element-type="icon" data-icon-type="svg" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div class="stat-block__content">
+          <span class="stat-block__label">חדש השבוע</span>
+          <span class="stat-block__value">הוספות טריות לספרייה</span>
+        </div>
+      </div>
+      <div class="stat-divider" aria-hidden="true"></div>
+      <div class="stat-block">
+        <div class="stat-block__icon">
+          <svg data-element-type="icon" data-icon-type="svg" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <div class="stat-block__content">
+          <span class="stat-block__label">בחירת המעריצים</span>
+          <span class="stat-block__value">אהובי הקהל מכל הז׳אנרים</span>
+        </div>
+      </div>
+    </div><!-- /.showcase-stat-banner -->
+
+  </div><!-- /.showcase-container -->
+
+  <!-- Bottom Arc Divider -->
+  <div class="showcase-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 80" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,80 L0,50 Q300,0 600,20 Q900,40 1200,10 L1200,80 Z" fill="#111827"></path>
+    </svg>
+  </div>
+
+</section>
+
+<section class="index-benefits-section" data-layout-spec="בית-benefits" dir="rtl">
+  <div class="index-benefits-container">
+    <!-- Content Column (START = RIGHT in RTL) -->
+    <div class="index-benefits-content">
+      <div class="index-benefits-label">למה Game GG?</div>
+      <h2 class="index-benefits-heading">למה Game GG מרגיש גדול יותר ופשוט יותר בו-זמנית.</h2>
+      <p class="index-benefits-intro">ההבטחה של הפלטפורמה פשוטה: להביא את כל האנרגיה של עולם הגיימינג למקום אחד, תוך הסרת הבלגן שמגיע בדרך כלל עם קטלוגים ענקיים.</p>
+
+      <div class="index-benefits-list">
+        <!-- Benefit 1 -->
+        <div class="index-benefit-row">
+          <div class="index-benefit-icon-wrap">
+            <svg data-element-type="icon" data-icon-type="svg" width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="10 8 16 12 10 16 10 8"></polygon>
+            </svg>
+          </div>
+          <div class="index-benefit-text">
+            <h3>יעד אחד לכל סגנון משחק</h3>
+            <p>בין אם אתם גיימרים קזואליים, שחקנים תחרותיים, חובבי עלילות עמוקות או נוסטלגיים שגדלו על קלאסיקות — Game GG הוא הבית שלכם. כל הז'אנרים, כל הפלטפורמות, כולם ביחד.</p>
+          </div>
+        </div>
+
+        <!-- Benefit 2 -->
+        <div class="index-benefit-row">
+          <div class="index-benefit-icon-wrap">
+            <svg data-element-type="icon" data-icon-type="svg" width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+          </div>
+          <div class="index-benefit-text">
+            <h3>בהירות במקום כאוס</h3>
+            <p>קטגוריזציה חכמה והיררכיית תוכן קריאה הופכות כל חיפוש לחוויה נעימה. אפילו ב-now gg mobile cloud עם אלפי כותרים — תמצאו בדיוק מה שחיפשתם תוך שניות.</p>
+          </div>
+        </div>
+
+        <!-- Benefit 3 -->
+        <div class="index-benefit-row">
+          <div class="index-benefit-icon-wrap">
+            <svg data-element-type="icon" data-icon-type="svg" width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+            </svg>
+          </div>
+          <div class="index-benefit-text">
+            <h3>בידור קודם לכל</h3>
+            <p>ויז'ואלים מרהיבים, דירוגים, רשימות מובחרות והיילייטים קוראטוריים — כל דף בנוי להלהיב ולהניע. Game GG הוא לא רק קטלוג, זו חוויה.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual Column (END = LEFT in RTL) -->
+    <div class="index-benefits-visual">
+      <div class="index-benefits-visual-inner">
+        <!-- Primary panel -->
+        <div class="index-benefits-main-panel">
+          <div class="index-benefits-panel-chrome">
+            <span class="index-chrome-dot"></span>
+            <span class="index-chrome-dot"></span>
+            <span class="index-chrome-dot"></span>
+            <span class="index-chrome-url">gamegg.com/discover</span>
+          </div>
+          <img data-placeholder="index-benefits-image-1" data-context="A sleek gaming platform interface screenshot showing a dark-themed game catalog with colorful game tiles arranged in a clean grid. Games include action, RPG, and adventure genres with vibrant cover art. The UI has a dark navy background with blue and orange accent colors, search bar at top, category filters, and featured game highlights. Modern, editorial design, cinematic quality." width="540" height="360" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='540' height='360'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%9E%D7%9E%D7%A9%D7%A7%20%D7%A4%D7%9C%D7%98%D7%A4%D7%95%D7%A8%D7%9E%D7%AA%20Game%20GG%20%D7%A2%D7%9D%20%D7%A7%D7%98%D7%9C%D7%95%D7%92%20%D7%9E%D7%A9%D7%97%D7%A7%D7%99%D7%9D%3C/text%3E%3C/svg%3E" alt="ממשק פלטפורמת Game GG עם קטלוג משחקים" class="index-benefits-img-main">
+        </div>
+
+        <!-- Secondary tile (peeks from bottom-end corner) -->
+        <div class="index-benefits-secondary-tile">
+          <img data-placeholder="index-benefits-image-2" data-context="A close-up screenshot of a gaming portal detail page showing a featured game card with ranking badge, genre tags, and star rating. The game shown is an action-adventure title with dramatic cover art. Dark UI with orange accent highlights, compact typography, and a &quot;play now&quot; button. Cinematic and polished." width="280" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%9B%D7%A8%D7%98%D7%99%D7%A1%20%D7%9E%D7%A9%D7%97%D7%A7%20%D7%9E%D7%95%D7%91%D7%97%D7%A8%20%D7%A2%D7%9D%20%D7%93%D7%99%D7%A8%D7%95%D7%92%20%D7%95%D7%AA%D7%92%D7%99%D7%95%D7%AA%20%D7%96%D7%B3%D7%90%D7%A0%D7%A8%3C/text%3E%3C/svg%3E" alt="כרטיס משחק מובחר עם דירוג ותגיות ז׳אנר" class="index-benefits-img-secondary">
+          <div class="index-benefits-tile-badge">
+            <svg data-element-type="icon" data-icon-type="svg" width="14" height="14" viewbox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+            </svg>
+            <span>מובחר</span>
+          </div>
+        </div>
+
+        <!-- Decorative accent lines -->
+        <div class="index-benefits-accent-line index-benefits-accent-line--v" aria-hidden="true"></div>
+        <div class="index-benefits-accent-line index-benefits-accent-line--h" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom divider: warm orange light-band dissolving into light section -->
+  <div class="index-benefits-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 90" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="ib-orange-band" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(249,115,22,0)"></stop>
+          <stop offset="45%" stop-color="rgba(249,115,22,0.18)"></stop>
+          <stop offset="100%" stop-color="#FAFAF8"></stop>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="1200" height="90" fill="url(#ib-orange-band)"></rect>
+      <path d="M0,90 L0,52 Q100,38 200,50 T400,44 Q500,38 600,48 T800,42 Q900,36 1000,46 T1200,40 L1200,90 Z" fill="var(--bg-light)"></path>
+    </svg>
+  </div>
+</section>
+
+<section id="testimonials" class="index-testimonials-section" data-layout-spec="בית-testimonials" dir="rtl">
+  <div class="index-testimonials-container">
+
+    <!-- Intro Block -->
+    <div class="index-testimonials-intro">
+      <span class="index-testimonials-eyebrow">ביקורות גיימרים</span>
+      <h2 class="index-testimonials-title">מה השחקנים אוהבים ב-Game GG</h2>
+      <p class="index-testimonials-subtitle">הקסם הוא לא רק בכמות — זו התחושה שסוף סוף המשחקים מאורגנים בצורה שמרגישה הגיונית. כל ז'אנר, כל כותר, הכל במקום אחד.</p>
+    </div>
+
+    <!-- Testimonials Grid -->
+    <div class="index-testimonials-grid">
+
+      <!-- Card 1: Competitive Player -->
+      <article class="index-testimonials-card">
+        <div class="index-testimonials-quote-icon" aria-hidden="true">
+          <svg data-element-type="icon" data-icon-type="svg" width="28" height="28" viewbox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 8C4 6.89543 4.89543 6 6 6H11C12.1046 6 13 6.89543 13 8V13C13 14.1046 12.1046 15 11 15H9C9 16.6569 10.3431 18 12 18V20C9.23858 20 7 17.7614 7 15H6C4.89543 15 4 14.1046 4 13V8Z" fill="currentColor" opacity="0.18"></path>
+            <path d="M15 8C15 6.89543 15.8954 6 17 6H22C23.1046 6 24 6.89543 24 8V13C24 14.1046 23.1046 15 22 15H20C20 16.6569 21.3431 18 23 18V20C20.2386 20 18 17.7614 18 15H17C15.8954 15 15 14.1046 15 13V8Z" fill="currentColor" opacity="0.18"></path>
+          </svg>
+        </div>
+        <blockquote class="index-testimonials-quote">
+          <p>"הפלטפורמה הזו שינתה לי את כל חוויית החיפוש. תוך שניות אני מוצא משחקי אקשן, אסטרטגיה, ספורט — הכל מסודר, הכל נגיש. לא צריך לקפוץ בין עשרה אתרים שונים."</p>
+        </blockquote>
+        <div class="index-testimonials-author">
+          <div class="index-testimonials-avatar">
+            <img data-placeholder="index-testimonials-image-1" data-context="Abstract gamer portrait avatar for a competitive esports player, pixel art style with blue and orange gaming colors, circular crop, clean minimal design for a gaming portal testimonial" width="56" height="56" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%90%D7%91%D7%99%D7%91%20%D7%9B%D7%94%D7%9F%20-%20%D7%92%D7%99%D7%99%D7%9E%D7%A8%20%D7%AA%D7%97%D7%A8%D7%95%D7%AA%D7%99%3C/text%3E%3C/svg%3E" alt="אביב כהן - גיימר תחרותי">
+          </div>
+          <div class="index-testimonials-author-info">
+            <h3 class="index-testimonials-author-name">אביב כהן</h3>
+            <span class="index-testimonials-author-role">גיימר תחרותי • FPS ואסטרטגיה</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2: Casual Player -->
+      <article class="index-testimonials-card">
+        <div class="index-testimonials-quote-icon" aria-hidden="true">
+          <svg data-element-type="icon" data-icon-type="svg" width="28" height="28" viewbox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 8C4 6.89543 4.89543 6 6 6H11C12.1046 6 13 6.89543 13 8V13C13 14.1046 12.1046 15 11 15H9C9 16.6569 10.3431 18 12 18V20C9.23858 20 7 17.7614 7 15H6C4.89543 15 4 14.1046 4 13V8Z" fill="currentColor" opacity="0.18"></path>
+            <path d="M15 8C15 6.89543 15.8954 6 17 6H22C23.1046 6 24 6.89543 24 8V13C24 14.1046 23.1046 15 22 15H20C20 16.6569 21.3431 18 23 18V20C20.2386 20 18 17.7614 18 15H17C15.8954 15 15 14.1046 15 13V8Z" fill="currentColor" opacity="0.18"></path>
+          </svg>
+        </div>
+        <blockquote class="index-testimonials-quote">
+          <p>"הייתי רגיל לשחק רק את הכותרים הגדולים, אבל דרך Game GG גיליתי אינדי-ג'מס שאני מת עליהם. המעבר בין הבלוקבאסטרים לפנינות הנסתרות הוא חלק ומהנה בטירוף."</p>
+        </blockquote>
+        <div class="index-testimonials-author">
+          <div class="index-testimonials-avatar">
+            <img data-placeholder="index-testimonials-image-2" data-context="Abstract casual gamer portrait avatar, warm and friendly illustration style with soft orange and purple tones, circular crop, for a gaming portal testimonial card" width="56" height="56" src="/assets/site-index-testimonials-image-2.webp" alt="מיכל לוי - גיימרית קז׳ואל">
+          </div>
+          <div class="index-testimonials-author-info">
+            <h3 class="index-testimonials-author-name">מיכל לוי</h3>
+            <span class="index-testimonials-author-role">גיימרית קז׳ואל • חובבת אינדי ו-RPG</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3: Streamer/Creator -->
+      <article class="index-testimonials-card">
+        <div class="index-testimonials-quote-icon" aria-hidden="true">
+          <svg data-element-type="icon" data-icon-type="svg" width="28" height="28" viewbox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 8C4 6.89543 4.89543 6 6 6H11C12.1046 6 13 6.89543 13 8V13C13 14.1046 12.1046 15 11 15H9C9 16.6569 10.3431 18 12 18V20C9.23858 20 7 17.7614 7 15H6C4.89543 15 4 14.1046 4 13V8Z" fill="currentColor" opacity="0.18"></path>
+            <path d="M15 8C15 6.89543 15.8954 6 17 6H22C23.1046 6 24 6.89543 24 8V13C24 14.1046 23.1046 15 22 15H20C20 16.6569 21.3431 18 23 18V20C20.2386 20 18 17.7614 18 15H17C15.8954 15 15 14.1046 15 13V8Z" fill="currentColor" opacity="0.18"></path>
+          </svg>
+        </div>
+        <blockquote class="index-testimonials-quote">
+          <p>"כסטרימר, אני צריך לדעת על כל משחק חדש לפני כולם. Game GG נותן לי את הרוחב הזה — ממשחקי ענן כמו now gg mobile cloud ועד קלאסיקות, הכל מוצג בצורה נקייה ומקצועית שנראית מעולה גם בשידור."</p>
+        </blockquote>
+        <div class="index-testimonials-author">
+          <div class="index-testimonials-avatar">
+            <img data-placeholder="index-testimonials-image-3" data-context="Abstract gaming streamer content creator portrait avatar, dynamic illustration with purple and electric blue streaming aesthetic, circular crop, for a gaming portal testimonial card" width="56" height="56" src="/assets/site-index-testimonials-image-3.webp" alt="נועם שמיר - סטרימר ויוצר תוכן">
+          </div>
+          <div class="index-testimonials-author-info">
+            <h3 class="index-testimonials-author-name">נועם שמיר</h3>
+            <span class="index-testimonials-author-role">סטרימר ויוצר תוכן • 50K עוקבים</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+    <!-- End Grid -->
+
+  </div>
+
+  <!-- Bottom Pixel-Step SVG Divider -->
+  <div class="index-testimonials-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 48" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,48 L0,24 L100,24 L100,12 L200,12 L200,24 L300,24 L300,8 L400,8 L400,24 L500,24 L500,16 L600,16 L600,24 L700,24 L700,8 L800,8 L800,24 L900,24 L900,12 L1000,12 L1000,24 L1100,24 L1100,16 L1200,16 L1200,48 Z" fill="#FAFAF8"></path>
+    </svg>
+  </div>
+
+</section>
+
+<section id="stats" class="index-stats-section" data-layout-spec="בית-stats" dir="rtl">
+  <div class="stats-container">
+    <!-- Section Header -->
+    <div class="stats-header">
+      <h2 class="stats-heading">בנוי להרגיש כמו המקום הסופי.</h2>
+      <p class="stats-subheading">כל דבר ב-Game GG נועד להעביר קנה מידה, ארגון ובטחון. פורטל הגיימינג המקיף ביותר — כל המשחקים בעולם, במקום אחד.</p>
+    </div>
+
+    <!-- Inset Panel -->
+    <div class="stats-inset-panel">
+      <!-- Stat Cards Row -->
+      <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-number">100<span class="stat-plus">+</span></div>
+          <div class="stat-label">ז'אנרים מיוצגים</div>
+          <div class="stat-desc">מאקשן ועד פאזל, מכל פינה בעולם</div>
+        </article>
+        <article class="stat-card stat-card--accent">
+          <div class="stat-number">10K<span class="stat-plus">+</span></div>
+          <div class="stat-label">כותרים במאגר</div>
+          <div class="stat-desc">אלפי משחקים מוצגים ומאורגנים בקפידה</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-number">🌍</div>
+          <div class="stat-label">תרבות גיימינג גלובלית</div>
+          <div class="stat-desc">פורטל אחד לכל תרבויות המשחק בעולם</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">רשימות ודירוגים טריים</div>
+          <div class="stat-desc">תוכן מתעדכן לחוויית גיימינג חוזרת</div>
+        </article>
+      </div>
+
+      <!-- Trust Strip -->
+      <div class="trust-strip">
+        <div class="trust-divider"></div>
+        <div class="trust-items">
+          <div class="trust-item">
+            <span class="trust-icon">
+              <svg data-element-type="icon" data-icon-type="svg" width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.8"></circle>
+                <path d="M6 10h8M10 6v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+              </svg>
+            </span>
+            <span class="trust-text">ממיינסטרים ועד נישה — הכל כאן</span>
+          </div>
+          <div class="trust-separator" aria-hidden="true"></div>
+          <div class="trust-item">
+            <span class="trust-icon">
+              <svg data-element-type="icon" data-icon-type="svg" width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M3 10a7 7 0 1 0 14 0A7 7 0 0 0 3 10Z" stroke="currentColor" stroke-width="1.8"></path>
+                <path d="M10 3c-2 2-3 4.5-3 7s1 5 3 7M10 3c2 2 3 4.5 3 7s-1 5-3 7M3 10h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+              </svg>
+            </span>
+            <span class="trust-text">מתוכנן לקהל רחב ומגוון</span>
+          </div>
+          <div class="trust-separator" aria-hidden="true"></div>
+          <div class="trust-item">
+            <span class="trust-icon">
+              <svg data-element-type="icon" data-icon-type="svg" width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                <path d="M7 8h6M7 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+              </svg>
+            </span>
+            <span class="trust-text">גלישה ברורה ונקייה, ללא עומס</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Angled Divider -->
+  <div class="stats-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1440 80" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="0,80 1440,80 1440,0" fill="var(--bg-dark)"></polygon>
+    </svg>
+  </div>
+</section>
+
+<section id="cta" class="index-cta-section" data-layout-spec="בית-cta" dir="rtl">
+  <div class="index-cta-container">
+    <!-- Content Column (Start/Right) -->
+    <div class="index-cta-content">
+      <div class="index-cta-badge">
+        <i class="fa-solid fa-gamepad"></i>
+        <span>Game GG</span>
+      </div>
+      <h2 class="index-cta-heading">הביאו את פורטל הגיימינג האולטימטיבי לחיים</h2>
+      <p class="index-cta-desc">אם אתם רוצים פלטפורמה שתלכוד את הסקייל, ההתרגשות, וכוח הגילוי של תרבות הגיימינג — Game GG מוכן להפוך את החזון הזה ליעד אמיתי. ממשחקי ענן כמו now gg mobile cloud ועד לכותרים קלאסיים, הכול במקום אחד.</p>
+      <h3 class="index-cta-reassurance">
+        <i class="fa-solid fa-check-circle"></i>
+        מבנה ברור, מגוון עצום, אנרגיית בידור אמיתית.
+      </h3>
+      <div class="index-cta-btn-group">
+        <a href="#contact" class="btn-primary index-cta-btn-main">התחילו את השיחה</a>
+        <a href="#" class="btn-secondary index-cta-btn-sec">ראו את הקונספט שוב</a>
+      </div>
+      <!-- Decorative accent lines -->
+      <div class="index-cta-accent-lines" aria-hidden="true">
+        <span class="acl acl-blue"></span>
+        <span class="acl acl-orange"></span>
+        <span class="acl acl-dim"></span>
+      </div>
+    </div>
+    <!-- Form Column (End/Left) -->
+    <div class="index-cta-form-col">
+      <div class="index-cta-form-card" id="contact">
+        <div class="index-cta-form-header">
+          <h3 class="index-cta-form-title">שלחו לנו הודעה</h3>
+          <p class="index-cta-form-subtitle">נחזור אליכם תוך 24 שעות</p>
+        </div>
+        <form class="contact-form" novalidate="">
+          <div class="index-cta-field">
+            <label for="cta-name">שם מלא</label>
+            <input type="text" id="cta-name" name="name" placeholder="הכניסו את שמכם" required="">
+          </div>
+          <div class="index-cta-field">
+            <label for="cta-email">כתובת אימייל</label>
+            <input type="email" id="cta-email" name="email" placeholder="your@email.com" required="">
+          </div>
+          <div class="index-cta-field">
+            <label for="cta-phone">טלפון</label>
+            <input type="tel" id="cta-phone" name="phone" placeholder="050-0000000">
+          </div>
+          <div class="index-cta-field">
+            <label for="cta-message">הודעה</label>
+            <textarea id="cta-message" name="message" rows="4" placeholder="ספרו לנו על הפרויקט שלכם..." required=""></textarea>
+          </div>
+          <div class="privacy-consent">
+            <label class="privacy-consent-label">
+              <input type="checkbox" name="privacy_consent" class="privacy-consent-checkbox" required="">
+              <span>קראתי ואני מסכים/ה ל<a href="/terms" target="_blank">תנאי השימוש</a> ול<a href="/privacy" target="_blank">מדיניות הפרטיות</a></span>
+            </label>
+          </div>
+          <button type="submit" class="index-cta-submit">
+            <i class="fa-solid fa-paper-plane"></i>
+            שלחו הודעה
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Subtle decorative glow blobs -->
+  <div class="index-cta-glow index-cta-glow-blue" aria-hidden="true"></div>
+  <div class="index-cta-glow index-cta-glow-orange" aria-hidden="true"></div>
+</section>
+  </main>
+  
+  <footer class="site-footer"><div class="footer-top"><div class="footer-container"><div class="footer-grid"><div class="footer-col footer-brand"><img src="/assets/game-gg-logo.webp" alt="Game GG" class="logo"><p class="brand-tagline">כל המשחקים בעולם — במקום אחד. חווית גיימינג פרימיום שמתחילה כאן.</p><div class="social-links"><a href="[facebook_handle]" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a><a href="[instagram_handle]" aria-label="Instagram"><i class="fab fa-instagram"></i></a><a href="[whatsapp_handle]" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a></div></div><div class="footer-col"><h4 class="footer-heading"><span class="heading-accent"></span>ניווט מהיר</h4><ul class="footer-links"><li><a href="#features"><i class="fas fa-chevron-left link-icon"></i>תכונות</a></li><li><a href="#showcase"><i class="fas fa-chevron-left link-icon"></i>גלריה</a></li><li><a href="#benefits"><i class="fas fa-chevron-left link-icon"></i>יתרונות</a></li><li><a href="#testimonials"><i class="fas fa-chevron-left link-icon"></i>המלצות</a></li><li><a href="#stats"><i class="fas fa-chevron-left link-icon"></i>נתונים</a></li></ul></div><div class="footer-col"><h4 class="footer-heading"><span class="heading-accent"></span>צור קשר</h4><ul class="footer-contact"><li><span class="contact-icon"><i class="fas fa-envelope"></i></span><a href="mailto:[business_email]">[business_email]</a></li><li><span class="contact-icon"><i class="fas fa-phone"></i></span><a href="tel:[business_phone]">[business_phone]</a></li><li><a href="/"><span class="contact-icon"><i class="fas fa-map-marker-alt"></i></span><span>[business_address]</span></a></li></ul></div><div class="footer-col footer-badge-col"><h4 class="footer-heading"><span class="heading-accent"></span>Game GG</h4><div class="footer-badge"><div class="badge-icon"><i class="fas fa-gamepad"></i></div><div class="badge-text"><strong>גיימינג ובידור</strong><span>פלטפורמת המשחקים המובילה</span></div></div><div class="footer-badge footer-badge--secondary"><div class="badge-icon badge-icon--secondary"><i class="fas fa-shield-alt"></i></div><div class="badge-text"><strong>אמין ומאובטח</strong><span>חווית משתמש מאובטחת</span></div></div></div></div></div></div><div class="footer-bottom"><div class="footer-container"><div class="footer-bottom-inner"><p class="copyright">© 2026 Game GG. כל הזכויות שמורות.</p><div class="footer-bottom-links"><a href="/privacy">מדיניות פרטיות</a><span class="divider"></span><a href="/terms">תנאי שימוש</a><span class="divider"></span><a href="/accessibility">נגישות</a><span class="divider"></span><a href="https://zappy5.com" target="_blank" class="zappy-attribution">נוצר באמצעות Zappy</a></div></div></div></div></footer>
+  
+  <a href="https://wa.me/[whatsapp_handle]" class="whatsapp-float" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  
+  <div data-integration="accessibility:toolbar"></div>
+
+    <script src="/script.js"></script>
+
+    <script id="zappy-mobile-submenu-script">
+    (function() {
+      function initMobileSubmenuToggles() {
+        if (window.innerWidth > 768) {
+          document.querySelectorAll('.mobile-submenu-toggle').forEach(function(btn) { btn.remove(); });
+          document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) { menu.classList.remove('mobile-expanded'); });
+          return;
+        }
+        var items = document.querySelectorAll('.nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu)');
+        items.forEach(function(li) {
+          if (li.querySelector('.mobile-submenu-toggle')) return;
+          var submenu = li.querySelector('.sub-menu');
+          var parentLink = li.querySelector(':scope > a');
+          if (!submenu || !parentLink) return;
+          var toggleBtn = document.createElement('button');
+          toggleBtn.className = 'mobile-submenu-toggle';
+          toggleBtn.setAttribute('aria-label', 'Toggle submenu');
+          toggleBtn.setAttribute('type', 'button');
+          parentLink.insertAdjacentElement('afterend', toggleBtn);
+          toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) {
+              if (menu !== submenu) { menu.classList.remove('mobile-expanded'); var t = menu.parentElement.querySelector('.mobile-submenu-toggle'); if(t) t.classList.remove('expanded'); }
+            });
+            submenu.classList.toggle('mobile-expanded');
+            toggleBtn.classList.toggle('expanded');
+          });
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileSubmenuToggles); }
+      else { initMobileSubmenuToggles(); }
+      var resizeTimer; window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(initMobileSubmenuToggles, 250); });
+      // Re-initialize when mobile menu becomes visible (MutationObserver)
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes') {
+            var target = mutation.target;
+            if (target.classList && (target.classList.contains('active') || target.classList.contains('open'))) {
+              setTimeout(initMobileSubmenuToggles, 100);
+            }
+          }
+        });
+      });
+      setTimeout(function() {
+        document.querySelectorAll('.mobile-menu, .nav-menu, #navMenu, nav').forEach(function(menu) {
+          observer.observe(menu, { attributes: true, attributeFilter: ['class', 'style'] });
+        });
+      }, 500);
+    })();
+    </script>
+
+    <script id="zappy-navbar-scroll-effect">
+    (function(){
+      var nb=document.querySelector('nav.navbar,.navbar:not(.zappy-catalog-menu)');
+      var cm=document.querySelector('.zappy-catalog-menu,#zappy-catalog-menu');
+      if(!nb)return;
+      var fb='rgba(250,250,248,0.85)';
+      var th=60;
+      var rs=getComputedStyle(document.documentElement);
+      var td=rs.getPropertyValue('--text-dark').trim()||'#1a1a1a';
+      var tl=rs.getPropertyValue('--text-light').trim()||'#ffffff';
+      var st=true?td:tl;
+      nb.style.transition='background 0.3s ease,backdrop-filter 0.3s ease,-webkit-backdrop-filter 0.3s ease,box-shadow 0.3s ease';
+      if(cm)cm.style.transition='background 0.3s ease,backdrop-filter 0.3s ease,-webkit-backdrop-filter 0.3s ease';
+      var neSel='a,.navbar-brand,.navbar-brand a,.dropdown-toggle,.mobile-toggle,.phone-header-btn,.mobile-hamburger-btn,.mobile-close-btn,.mobile-submenu-toggle,.nav-link';
+      var skipCls=['cart-link','login-link','nav-search-toggle','search-toggle'];
+      function sTC(c,clr){var els=c.querySelectorAll(neSel);for(var i=0;i<els.length;i++){var sk=false;if(els[i].closest('.sub-menu')||els[i].closest('.dropdown-menu')){sk=true;}for(var j=0;j<skipCls.length;j++){if(els[i].classList.contains(skipCls[j])){sk=true;break;}}if(!sk)els[i].style.setProperty('color',clr,'important');}}
+      function cTC(c){var els=c.querySelectorAll(neSel);for(var i=0;i<els.length;i++){if(els[i].closest('.sub-menu')||els[i].closest('.dropdown-menu'))continue;els[i].style.removeProperty('color');}}
+      function applyScrolled(){
+        nb.classList.add('scrolled');
+        if(window.innerWidth>768){
+          nb.style.setProperty('--frosted-text',st);
+          nb.style.setProperty('background-image','none','important');
+          nb.style.setProperty('background-color',fb,'important');
+          nb.style.backdropFilter='blur(12px)';nb.style.webkitBackdropFilter='blur(12px)';nb.style.boxShadow='0 2px 16px rgba(0,0,0,0.12)';
+          sTC(nb,st);
+        }
+        if(cm){cm.classList.add('scrolled');if(window.innerWidth>768){cm.style.setProperty('background',fb,'important');cm.style.setProperty('backdrop-filter','blur(12px)','important');cm.style.setProperty('-webkit-backdrop-filter','blur(12px)','important');sTC(cm,st);}}
+      }
+      function onS(){
+        if(window._zappyNavNoDarkHero) return;
+        if(window.innerWidth<=768){nb.classList.remove('scrolled');cTC(nb);if(cm){cm.classList.remove('scrolled');cTC(cm);}return;}
+        var y=window.scrollY||window.pageYOffset;
+        if(y>th){
+          nb.classList.add('scrolled');nb.style.setProperty('background-color',fb,'important');nb.style.setProperty('background-image','none','important');
+          nb.style.setProperty('--frosted-text',st);nb.style.backdropFilter='blur(12px)';nb.style.webkitBackdropFilter='blur(12px)';nb.style.boxShadow='0 2px 16px rgba(0,0,0,0.12)';
+          sTC(nb,st);
+          if(cm){cm.classList.add('scrolled');cm.style.setProperty('background',fb,'important');cm.style.setProperty('backdrop-filter','blur(12px)','important');cm.style.setProperty('-webkit-backdrop-filter','blur(12px)','important');sTC(cm,st);}
+        }else{
+          nb.classList.remove('scrolled');nb.style.setProperty('background-color','transparent','important');nb.style.removeProperty('background-image');
+          nb.style.removeProperty('--frosted-text');nb.style.backdropFilter='none';nb.style.webkitBackdropFilter='none';nb.style.boxShadow='none';
+          cTC(nb);
+          if(cm){cm.classList.remove('scrolled');cm.style.setProperty('background','transparent','important');cm.style.setProperty('backdrop-filter','none','important');cm.style.setProperty('-webkit-backdrop-filter','none','important');cTC(cm);}
+        }
+      }
+      function sLum(rv,gv,bv){rv/=255;gv/=255;bv/=255;rv=rv<=0.03928?rv/12.92:Math.pow((rv+0.055)/1.055,2.4);gv=gv<=0.03928?gv/12.92:Math.pow((gv+0.055)/1.055,2.4);bv=bv<=0.03928?bv/12.92:Math.pow((bv+0.055)/1.055,2.4);return 0.2126*rv+0.7152*gv+0.0722*bv;}
+      window.addEventListener('scroll',onS,{passive:true});
+      window.addEventListener('resize',onS,{passive:true});
+      onS();
+      var heroEl=document.querySelector('section[class*="hero"],[data-hero-type],main>section:first-child');
+      var hasDH=false;
+      if(heroEl){var hCs=getComputedStyle(heroEl);var hBI=hCs.backgroundImage;if(hBI&&hBI!=='none'){if(hBI.indexOf('url(')!==-1){var hM2=hCs.backgroundColor.match(/\d+/g);if(hM2&&hM2.length>=3){hasDH=sLum(parseInt(hM2[0]),parseInt(hM2[1]),parseInt(hM2[2]))<0.4;}else{hasDH=true;}}else if(hBI.indexOf('gradient')!==-1){var cM=hBI.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/g);if(cM&&cM.length>0){var tLm=0;for(var ci=0;ci<cM.length;ci++){var pts=cM[ci].match(/\d+/g);tLm+=sLum(parseInt(pts[0]),parseInt(pts[1]),parseInt(pts[2]));}hasDH=(tLm/cM.length)<0.4;}else{hasDH=true;}}else{hasDH=true;}}else{var hM=hCs.backgroundColor.match(/\d+/g);if(hM&&hM.length>=3){hasDH=sLum(parseInt(hM[0]),parseInt(hM[1]),parseInt(hM[2]))<0.4;}}}
+      if(!hasDH){window.removeEventListener('scroll',onS);window.removeEventListener('resize',onS);applyScrolled();window._zappyNavNoDarkHero=true;}
+    })();
+    </script>
+
+    <script id="zappy-mobile-lang-menu-script">
+    (function() {
+      function initMobileLangMenu() {
+        if (window.innerWidth > 768) {
+          var existingMenu = document.querySelector('.mobile-lang-menu');
+          if (existingMenu) existingMenu.remove();
+          return;
+        }
+        if (document.querySelector('.mobile-lang-menu')) return;
+        var switcher = document.querySelector('.lang-switcher');
+        if (!switcher) return;
+        var dropdown = switcher.querySelector('.lang-switcher-dropdown');
+        if (!dropdown) return;
+        var options = dropdown.querySelectorAll('.lang-option');
+        if (options.length === 0) return;
+        var navMenu = document.getElementById('navMenu') || document.querySelector('.nav-menu') || document.querySelector('nav ul');
+        if (!navMenu) return;
+        var currentLang = document.documentElement.lang || 'en';
+        var langConfigs = {
+          he: {name:'עברית',flag:'https://api.iconify.design/circle-flags/il.svg'},
+          en: {name:'English',flag:'https://api.iconify.design/circle-flags/us.svg'},
+          ar: {name:'العربية',flag:'https://api.iconify.design/circle-flags/sa.svg'},
+          fr: {name:'Français',flag:'https://api.iconify.design/circle-flags/fr.svg'},
+          es: {name:'Español',flag:'https://api.iconify.design/circle-flags/es.svg'},
+          de: {name:'Deutsch',flag:'https://api.iconify.design/circle-flags/de.svg'},
+          ru: {name:'Русский',flag:'https://api.iconify.design/circle-flags/ru.svg'},
+          zh: {name:'中文',flag:'https://api.iconify.design/circle-flags/cn.svg'},
+          ja: {name:'日本語',flag:'https://api.iconify.design/circle-flags/jp.svg'},
+          pt: {name:'Português',flag:'https://api.iconify.design/circle-flags/br.svg'},
+          it: {name:'Italiano',flag:'https://api.iconify.design/circle-flags/it.svg'},
+          ko: {name:'한국어',flag:'https://api.iconify.design/circle-flags/kr.svg'}
+        };
+        var container = document.createElement('div');
+        container.className = 'mobile-lang-menu';
+        var currentConfig = langConfigs[currentLang] || {name:currentLang,flag:''};
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'mobile-lang-toggle';
+        toggleBtn.type = 'button';
+        var currentFlagHtml = currentConfig.flag ? '<img src="' + currentConfig.flag + '" width="20" height="20" alt="" style="border-radius:50%;margin-right:8px;margin-left:8px;">' : '';
+        toggleBtn.innerHTML = currentFlagHtml + currentConfig.name;
+        container.appendChild(toggleBtn);
+        var optionsDiv = document.createElement('div');
+        optionsDiv.className = 'mobile-lang-options';
+        var currentLink = document.createElement('a');
+        currentLink.className = 'mobile-lang-option active';
+        currentLink.href = '#';
+        currentLink.innerHTML = currentFlagHtml + currentConfig.name;
+        optionsDiv.appendChild(currentLink);
+        options.forEach(function(opt) {
+          var link = document.createElement('a');
+          link.className = 'mobile-lang-option';
+          link.href = opt.getAttribute('href');
+          link.innerHTML = opt.innerHTML;
+          optionsDiv.appendChild(link);
+        });
+        container.appendChild(optionsDiv);
+        navMenu.appendChild(container);
+        toggleBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleBtn.classList.toggle('expanded');
+          optionsDiv.classList.toggle('expanded');
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileLangMenu); }
+      else { initMobileLangMenu(); }
+      window.addEventListener('resize', function() { clearTimeout(window._mlrt); window._mlrt = setTimeout(initMobileLangMenu, 250); });
+    })();
+    </script>
+</body>
+</html>
